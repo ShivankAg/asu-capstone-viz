@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpaceDucks Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div style="width: 75%">
+      <canvas id="scatterplot"></canvas>
+    </div>
+    <script>
+      $(document).ready(function () {
+        // Initialize Chart.js scatterplot
+        var ctx = document.getElementById("scatterplot").getContext("2d");
+        var scatterChart = new Chart(ctx, {
+          type: "scatter",
+          data: {
+            datasets: [
+              {
+                label: "Scatterplot Data",
+                borderColor: "red",
+                data: [], // Initial empty dataset
+              },
+            ],
+          },
+          options: {
+            // Chart.js options
+          },
+        });
+
+        // Function to update chart with new data
+        function updateChart(data) {
+          scatterChart.data.datasets[0].data.push(data);
+          scatterChart.update();
+        }
+
+        // Function to fetch data from backend
+        function fetchData() {
+          $.ajax({
+            url: "/scatterplot-data/",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+              updateChart(data);
+            },
+            error: function (xhr, status, error) {
+              console.error("Error fetching data:", error);
+            },
+          });
+        }
+
+        // Fetch data every 1 second
+        setInterval(fetchData, 1000);
+      });
+    </script>
+  </body>
+</html>
