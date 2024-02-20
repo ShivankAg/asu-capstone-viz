@@ -35,15 +35,15 @@ keyword_mapping = {
     "EP": "External Pressure",
     "IA": "Altitude",
     "EA": "External Altitude",
-    "MX": "Vibration X-axis",
-    "MY": "Vibration Y-axis",
-    "MZ": "Vibration Z-axis",
+    "MX": "Magnetic X-axis",
+    "MY": "Magnetic Y-axis",
+    "MZ": "Magnetic Z-axis",
     "AX": "Acceleration X-axis",
     "AY": "Acceleration Y-axis",
     "AZ": "Acceleration Z-axis",
-    "GX": "Gravitation X-axis",
-    "GY": "Gravitation Y-axis",
-    "GZ": "Gravitation Z-axis",
+    "GX": "Gyroscope X-axis",
+    "GY": "Gyroscope Y-axis",
+    "GZ": "Gyroscope Z-axis",
 }
 
 
