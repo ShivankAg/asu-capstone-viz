@@ -20,43 +20,56 @@
     </style>
   </head>
   <body>
-    <div style="width: 75%">
+    <div style="width: 75%; margin: auto; text-align: center">
+      <img src="../static/sd_logo.png" alt="SpaceDuck Logo" />
+      <h1
+        style="
+          font-family: 'Arial Black', sans-serif;
+          font-size: 36px;
+          color: #ffffff;
+          text-shadow: 2px 2px 4px #000000;
+        "
+      >
+        PINKEYE<span style="font-weight: bold">01</span> Altitude
+      </h1>
       <canvas id="scatterplot"></canvas>
     </div>
     <script>
       $(document).ready(function () {
-        // Initialize Chart.js scatterplot
         var ctx = document.getElementById("scatterplot").getContext("2d");
+        var duckImage = new Image();
+        duckImage.src = "../static/favicon-16x16.png";
+
         var scatterChart = new Chart(ctx, {
           type: "scatter",
           data: {
             datasets: [
               {
                 label: "Altitude",
-                borderColor: "#ffbb00", // Yellow color for the rocket's path
+                borderColor: "#ffbb00",
                 backgroundColor: "transparent",
                 pointStyle: function (context) {
-                  var img = new Image();
-                  img.src = "../static/favicon-16x16.png"; // Replace with URL of duck image
-                  return img;
+                  return duckImage;
                 },
-                pointRadius: 3, // Decrease the size of the duck points
-                pointHoverRadius: 6, // Increase the size of the duck points on hover
+                pointRadius: 3,
+                pointHoverRadius: 6,
                 data: [], // Initial empty dataset
               },
             ],
           },
           options: {
+            responsive: true,
             scales: {
               x: {
-                type: "time", // Use time scale for x-axis
+                type: "time",
                 ticks: {
                   autoSkip: true,
                   maxTicksLimit: 10,
-                  color: "#ffffff", // White color for x-axis labels
+                  color: "#ffffff",
                 },
                 time: {
                   unit: "second",
+                  stepSize: 30,
                   displayFormats: {
                     minute: "HH:mm",
                   },
@@ -64,17 +77,17 @@
                 scaleLabel: {
                   display: true,
                   labelString: "Time",
-                  color: "#ffffff", // White color for x-axis label
+                  color: "#ffffff",
                 },
               },
               y: {
                 grid: {
-                  color: "#555555", // Gray color for y-axis grid lines
+                  color: "#555555",
                 },
                 scaleLabel: {
                   display: true,
                   labelString: "Altitude",
-                  color: "#ffffff", // White color for y-axis label
+                  color: "#ffffff",
                 },
               },
             },
@@ -90,17 +103,30 @@
         // Function to fetch initial data from backend
         function fetchInitialData() {
           $.ajax({
-            url: "/",
+            url: "/fetch_initial_data/",
             type: "GET",
             dataType: "json",
             success: function (initialData) {
-              // Format initial data for Chart.js
-              var formattedData = {
-                x: new Date(initialData.x * 1000), // Convert timestamp to milliseconds
-                y: initialData.y,
-              };
-              // Update chart with initial data
-              updateChart(formattedData);
+              if (
+                Array.isArray(initialData.data) &&
+                initialData.data.length > 0
+              ) {
+                // If there is previously sent data, update the chart with each data point
+                initialData.data.forEach(function (dataPoint) {
+                  var formattedData = {
+                    x: new Date(dataPoint.x * 1000),
+                    y: dataPoint.y,
+                  };
+                  updateChart(formattedData);
+                });
+              } else {
+                // If there is only one data point, update the chart with it
+                var formattedData = {
+                  x: new Date(initialData.data.x * 1000),
+                  y: initialData.data.y,
+                };
+                updateChart(formattedData);
+              }
             },
             error: function (xhr, status, error) {
               console.error("Error fetching initial data:", error);
@@ -118,12 +144,17 @@
             type: "GET",
             dataType: "json",
             success: function (data) {
-              // Convert timestamp to Date object
+              if (
+                Object.keys(data).length === 0 &&
+                data.constructor === Object
+              ) {
+                // Empty response, do nothing
+                return;
+              }
               var formattedData = {
-                x: new Date(data.x * 1000), // Convert timestamp to milliseconds
+                x: new Date(data.x * 1000),
                 y: data.y,
               };
-              // Update chart with new data
               updateChart(formattedData);
             },
             error: function (xhr, status, error) {

@@ -6,7 +6,6 @@ from datetime import datetime
 import json
 import re
 
-
 keyword_mapping = {
     "C": "Counter",
     "LT": "Latitude",
@@ -27,7 +26,6 @@ keyword_mapping = {
     "GY": "Gyroscope Y-axis",
     "GZ": "Gyroscope Z-axis",
 }
-
 
 # Helper functions:
 def parse_data(spaceduck_data):
@@ -56,29 +54,49 @@ def format_created_at(created_at_str):
     # Convert the datetime object to a timestamp
     return created_at_datetime.timestamp()
 
-
+# Global variable to store the ID of the last sent data point
+last_sent_id = None
 
 # Create your views here.
 def index(request):
-    # Retrieve the first object
-    first_data = SpaceDucksData.objects.first()
+    return render(request, 'spacechart/index.html')
 
-    # Store the ID of the first object in the session
-    if first_data:
-        request.session['last_sent_id'] = first_data.id
 
-    # Prepare the initial data to pass to the template
-    initial_data = {}
-    if first_data:
-        data_dict = parse_data(first_data)
-        initial_data['x'] = format_created_at(first_data.created_at)
-        initial_data['y'] = data_dict.get("Altitude")
+def fetch_initial_data(request):
+    global last_sent_id
 
-    return render(request, 'spacechart/index.html', {'data': initial_data})
+    # Retrieve all data points with IDs less than or equal to the last sent ID
+    if last_sent_id is not None:
+        initial_data = SpaceDucksData.objects.filter(id__lte=last_sent_id).order_by('-id')
+        formatted_initial_data = []
+        for data_point in initial_data:
+            parsed_data = parse_data(data_point)
+            formatted_data = {
+                'x': format_created_at(data_point.created_at),
+                'y': parsed_data.get("Altitude")
+            }
+            formatted_initial_data.append(formatted_data)
+    else:
+        initial_data = SpaceDucksData.objects.all().first()
+        # Parse the initial data
+        parsed_initial_data = parse_data(initial_data)
+
+        # Prepare the initial data to pass to the template
+        formatted_initial_data = {
+            'x': format_created_at(initial_data.created_at),
+            'y': parsed_initial_data.get("Altitude")
+        }
+    print(formatted_initial_data)
+    return JsonResponse({'data': formatted_initial_data})
 
 def send_data(request):
-    # Get the ID of the last sent object from the session
-    last_sent_id = request.session.get('last_sent_id')
+    global last_sent_id
+
+    # If last_sent_id is None, set it to the ID of the first data point
+    if last_sent_id is None:
+        first_data = SpaceDucksData.objects.first()
+        if first_data:
+            last_sent_id = first_data.id
 
     # Retrieve the next object whose ID is greater than the last sent ID
     next_data = SpaceDucksData.objects.filter(id__gt=last_sent_id).first()
@@ -87,13 +105,16 @@ def send_data(request):
         # If there are no more objects with IDs greater than the last sent ID,
         # return an empty response or handle it as needed
         return JsonResponse({})
+    
+    if next_data.device_id == "TARAQUR1":
+        return JsonResponse({})
 
     # Extract the data to send
-    data_dict = parse_data(next_data)
-    y = data_dict.get("Altitude")
+    parsed_next_data = parse_data(next_data)
+    y = parsed_next_data.get("Altitude")
 
-    # Update the last sent ID in the session
-    request.session['last_sent_id'] = next_data.id
+    # Update the last sent ID
+    last_sent_id = next_data.id
 
     # Prepare and send the response
     print(f"Sending: x: {format_created_at(next_data.created_at)} - y:{y} from {next_data.device_id}")
