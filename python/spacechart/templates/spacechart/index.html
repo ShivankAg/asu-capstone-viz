@@ -7,6 +7,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Import Shivank's distance.js file -->
+    <script src="../static/scripts/distance.js"></script>
+
     <style>
       body {
         background-color: #0d0d0d;
@@ -31,6 +34,7 @@
         "
       >
         PINKEYE<span style="font-weight: bold">01</span> Altitude
+        <button id="predictButton">Predict Next Point</button>
       </h1>
       <canvas id="scatterplot"></canvas>
     </div>
@@ -93,6 +97,7 @@
             },
           },
         });
+        var fetchingData = true; // Variable to track whether data is being fetched or not
 
         // Function to update chart with new data
         function updateChart(data) {
@@ -139,6 +144,8 @@
 
         // Function to fetch data from backend
         function fetchData() {
+          if (!fetchingData) return; // Stop fetching data if fetchingData is false
+
           $.ajax({
             url: "/scatterplot-data/",
             type: "GET",
@@ -165,6 +172,20 @@
 
         // Fetch data every # second
         setInterval(fetchData, 1000);
+      });
+      $(document).ready(function () {
+        $("#predictButton").click(function () {
+          $.ajax({
+            type: "GET",
+            url: "/predict_next_point/",
+            success: function (data) {
+              console.log("Prediction successful");
+            },
+            error: function (xhr, status, error) {
+              console.error("Error predicting next point:", error);
+            },
+          });
+        });
       });
     </script>
   </body>
