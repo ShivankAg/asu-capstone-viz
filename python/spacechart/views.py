@@ -177,7 +177,7 @@ def fetch_initial_data(request):
             parsed_data = parse_data(data_point)
             formatted_data = {
                 'x': format_created_at(data_point.created_at),
-                'y': parsed_data.get("Altitude")
+                'y': parsed_data
             }
             formatted_initial_data.append(formatted_data)
     else:
@@ -188,9 +188,9 @@ def fetch_initial_data(request):
         # Prepare the initial data to pass to the template
         formatted_initial_data = {
             'x': format_created_at(initial_data.created_at),
-            'y': parsed_initial_data.get("Altitude")
+            'y': parsed_initial_data
         }
-    print(formatted_initial_data)
+    # print(formatted_initial_data)
     return JsonResponse({'data': formatted_initial_data})
 
 def send_data(request):
@@ -215,13 +215,13 @@ def send_data(request):
 
     # Extract the data to send
     parsed_next_data = parse_data(next_data)
-    y = parsed_next_data.get("Altitude")
+    y = parsed_next_data
 
     # Update the last sent ID
     last_sent_id = next_data.id
 
     # Prepare and send the response
-    print(f"Sending: x: {format_created_at(next_data.created_at)} - y:{y} from {next_data.device_id}")
+    # print(f"Sending: x: {format_created_at(next_data.created_at)} - y:{y} from {next_data.device_id}")
     return JsonResponse({'x': format_created_at(next_data.created_at), 'y': y})
 
 def predict():
