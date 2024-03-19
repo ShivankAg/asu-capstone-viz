@@ -237,20 +237,20 @@
         }, 2000);
       });
 
-      // $(document).ready(function () {
-      //   $("#predictButton").click(function () {
-      //     $.ajax({
-      //       type: "GET",
-      //       url: "/predict_next_point/",
-      //       success: function (data) {
-      //         console.log("Prediction successful");
-      //       },
-      //       error: function (xhr, status, error) {
-      //         console.error("Error predicting next point:", error);
-      //       },
-      //     });
-      //   });
-      // });
+      $(document).ready(function () {
+        $("#predictButton").click(function () {
+          $.ajax({
+            type: "GET",
+            url: "/predict_next_point/",
+            success: function (data) {
+              console.log("Prediction successful");
+            },
+            error: function (xhr, status, error) {
+              console.error("Error predicting next point:", error);
+            },
+          });
+        });
+      });
     </script>
   </body>
 </html>

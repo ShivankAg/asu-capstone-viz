@@ -58,12 +58,18 @@ function calculateNewCoordinates(latitude, longitude, bearing, distance) {
   };
 }
 
-function timeToHitGround(velocity, height) {
-  const discriminant = Math.sqrt(Math.pow(velocity, 2) + 2 * g * height);
-  const time = (-velocity + discriminant) / g;
+// function timeToHitGroundOld(velocity, height) {
+//   const discriminant = Math.sqrt(Math.pow(velocity, 2) + 2 * g * height);
+//   const time = (-velocity + discriminant) / g;
 
-  return time;
+//   return time;
+// }
+
+function timeToHitGround(velocity, height) {
+  const time = height/velocity;
+  return Math.abs(time);
 }
+
 var globalDataQueue = [];
 var yVelocity = 0;
 var maxLength = 3;
@@ -85,7 +91,7 @@ function newPointAdded(newPoint) {
     console.log("Still rising!");
     return false;
   }
-  yVelocity += gravity * (newPoint[updated_at] - lastPoint[updated_at]);
+  yVelocity = (newPoint[Altitude] - lastPoint[Altitude]) / (newPoint[updated_at] - lastPoint[updated_at]);
   let timeRemaining = timeToHitGround(yVelocity, newPoint.Altitude);
   console.log("Time to hit the ground (s):", timeRemaining);
 
