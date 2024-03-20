@@ -52,7 +52,7 @@ Performing system checks...
 
 System check identified no issues (0 silenced).
 February 09, 2024 - 02:20:24
-Django version 5.0.1, using settings 'pizza_app.settings'
+Django version 5.0.1, using settings 'spaceducks_chart.settings'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CTRL-BREAK.
 ```
