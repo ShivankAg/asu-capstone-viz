@@ -54,9 +54,13 @@
       <div class="chart-container">
         <h2>Altitude</h2>
         <canvas id="altitude-chart" class="chart"></canvas>
+        <div>
+          <label for="time-to-ground">Time to hit the ground:</label>
+          <input type="text" id="time-to-ground" name="time-to-ground" />
+        </div>
       </div>
 
-      <div class="chart-container">
+      <!-- <div class="chart-container">
         <h2>Internal Temperature</h2>
         <canvas id="internal-temp-chart" class="chart"></canvas>
       </div>
@@ -64,19 +68,19 @@
       <div class="chart-container">
         <h2>Internal Pressure</h2>
         <canvas id="internal-pressure-chart" class="chart"></canvas>
-      </div>
+      </div> -->
     </div>
     <script>
       $(document).ready(function () {
         var ctxAltitude = document
           .getElementById("altitude-chart")
           .getContext("2d");
-        var ctxInternalTemp = document
-          .getElementById("internal-temp-chart")
-          .getContext("2d");
-        var ctxInternalPressure = document
-          .getElementById("internal-pressure-chart")
-          .getContext("2d");
+        // var ctxInternalTemp = document
+        //   .getElementById("internal-temp-chart")
+        //   .getContext("2d");
+        // var ctxInternalPressure = document
+        //   .getElementById("internal-pressure-chart")
+        //   .getContext("2d");
         var duckImage = new Image();
         duckImage.src = "../static/favicon-16x16.png";
 
@@ -139,16 +143,16 @@
         }
 
         var altitudeChart = createChart(ctxAltitude, "Altitude", "Altitude");
-        var internalTempChart = createChart(
-          ctxInternalTemp,
-          "Internal Temperature",
-          "Internal Temp"
-        );
-        var internalPressureChart = createChart(
-          ctxInternalPressure,
-          "Internal Pressure",
-          "Internal Pressure"
-        );
+        // var internalTempChart = createChart(
+        //   ctxInternalTemp,
+        //   "Internal Temperature",
+        //   "Internal Temp"
+        // );
+        // var internalPressureChart = createChart(
+        //   ctxInternalPressure,
+        //   "Internal Pressure",
+        //   "Internal Pressure"
+        // );
 
         var fetchingData = true; // Variable to track whether data is being fetched or not
 
@@ -215,26 +219,47 @@
         }
 
         fetchInitialData(altitudeChart, "/fetch_initial_data/", "Altitude");
-        fetchInitialData(
-          internalTempChart,
-          "/fetch_initial_data/",
-          "Internal Temp"
-        );
-        fetchInitialData(
-          internalPressureChart,
-          "/fetch_initial_data/",
-          "Internal Pressure"
-        );
+        // fetchInitialData(
+        //   internalTempChart,
+        //   "/fetch_initial_data/",
+        //   "Internal Temp"
+        // );
+        // fetchInitialData(
+        //   internalPressureChart,
+        //   "/fetch_initial_data/",
+        //   "Internal Pressure"
+        // );
+        const TIME_INTERVAL = 2000;
 
         setInterval(function () {
           fetchData(altitudeChart, "/scatterplot-data/", "Altitude");
-          fetchData(internalTempChart, "/scatterplot-data/", "Internal Temp");
-          fetchData(
-            internalPressureChart,
-            "/scatterplot-data/",
-            "Internal Pressure"
-          );
-        }, 2000);
+        }, TIME_INTERVAL);
+
+        // setInterval(function () {
+        //   fetchData(internalTempChart, "/scatterplot-data/", "Internal Temp");
+        // }, TIME_INTERVAL);
+
+        // setInterval(function () {
+        //   fetchData(
+        //     internalPressureChart,
+        //     "/scatterplot-data/",
+        //     "Internal Pressure"
+        //   );
+        // }, TIME_INTERVAL);
+
+        setInterval(function () {
+          $.ajax({
+            url: "/time_to_ground",
+            type: "GET",
+            dataType: "json",
+            success: function (response) {
+              $("#time-to-ground").val(response.time_to_ground);
+            },
+            error: function (error) {
+              console.log(error);
+            },
+          });
+        }, TIME_INTERVAL);
       });
 
       $(document).ready(function () {
